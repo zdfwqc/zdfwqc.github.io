@@ -1,1 +1,380 @@
-hello world
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>洛洛的歌单</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #4a90e2;
+            --background-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            background: var(--background-gradient);
+            color: var(--primary-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .player-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .player-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+        }
+
+        .player-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .album-art {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            background: #f0f0f0;
+        }
+
+        #albumCover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .album-art:hover #albumCover {
+            transform: scale(1.05);
+        }
+
+        .playlist-container {
+            position: relative;
+            height: 500px;
+            overflow-y: auto;
+        }
+
+        .song-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .song-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .song-item.playing {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .controls {
+            grid-column: 1 / -1;
+            margin-top: 2rem;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 5px;
+            background: #ddd;
+            border-radius: 5px;
+            margin: 1rem 0;
+            cursor: pointer;
+        }
+
+        #progressBar {
+            height: 100%;
+            background: var(--secondary-color);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.8rem;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: rgba(74, 144, 226, 0.1);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #volume {
+            width: 100px;
+            height: 4px;
+            -webkit-appearance: none;
+            background: #ddd;
+            border-radius: 2px;
+        }
+
+        #volume::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--secondary-color);
+            border-radius: 50%;
+        }
+
+        @media (max-width: 768px) {
+            .player-body {
+                grid-template-columns: 1fr;
+            }
+            
+            .playlist-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="player-header">
+            <h1>🎶 米洛洛的歌单~</h1>
+            <p>Enjoy your favorite tracks</p>
+        </div>
+        
+        <div class="player-body">
+            <div class="album-art">
+                <img src="default-cover.jpg" id="albumCover" alt="Album Cover">
+            </div>
+            
+            <div class="playlist-container">
+                <ul class="song-list" id="playlist"></ul>
+            </div>
+
+            <div class="controls">
+                <div class="time-display">
+                    <span id="currentTime">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+
+                <div class="control-buttons">
+                    <button id="prevBtn">
+                        <img src="https://img.icons8.com/ios/50/previous--v1.png" alt="Previous">
+                    </button>
+                    <button id="playBtn">
+                        <img src="https://img.icons8.com/ios/50/play--v1.png" alt="Play" id="playIcon">
+                    </button>
+                    <button id="nextBtn">
+                        <img src="https://img.icons8.com/ios/50/next--v1.png" alt="Next">
+                    </button>
+                </div>
+
+                <div class="volume-container">
+                    <img src="https://img.icons8.com/ios/50/medium-volume--v1.png" alt="Volume" width="20">
+                    <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 音乐数据（需要替换为实际文件路径）
+        const playlist = [
+            {
+                title: "Sunset Dreams",
+                artist: "Chill Artist",
+                cover: "covers/defaultCover.png",
+                url: "music/def",
+                duration: "3:45"
+            },
+            {
+                title: "Mountain High",
+                artist: "Nature Sounds",
+                cover: "covers/defaultCover.png",
+                url: "music/song2.mp3",
+                duration: "4:20"
+            },
+            {
+                title: "City Lights",
+                artist: "Electronic Vibes",
+                cover: "covers/defaultCover.png",
+                url: "music/song3.mp3",
+                duration: "3:55"
+            }
+        ];
+
+        // 播放器元素
+        const audioPlayer = new Audio();
+        const playlistElement = document.getElementById('playlist');
+        const albumCover = document.getElementById('albumCover');
+        const playBtn = document.getElementById('playBtn');
+        const playIcon = document.getElementById('playIcon');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const volumeControl = document.getElementById('volume');
+        const currentTimeDisplay = document.getElementById('currentTime');
+        const durationDisplay = document.getElementById('duration');
+
+        // 初始化播放列表
+        playlist.forEach((song, index) => {
+            const li = document.createElement('li');
+            li.className = 'song-item';
+            li.innerHTML = `
+                <div>
+                    <div class="song-title">${song.title}</div>
+                    <div class="song-artist">${song.artist}</div>
+                    <div class="song-duration">${song.duration}</div>
+                </div>
+            `;
+            li.onclick = () => playSong(index);
+            playlistElement.appendChild(li);
+        });
+
+        // 播放控制函数
+        function playSong(index) {
+            const song = playlist[index];
+            
+            // 更新播放器
+            audioPlayer.src = song.url;
+            albumCover.src = song.cover;
+            
+            // 更新样式
+            document.querySelectorAll('.song-item').forEach(item => {
+                item.classList.remove('playing');
+            });
+            playlistElement.children[index].classList.add('playing');
+            
+            // 播放音乐
+            audioPlayer.play();
+            updatePlayButton(true);
+        }
+
+        // 播放/暂停切换
+        playBtn.addEventListener('click', () => {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                updatePlayButton(true);
+            } else {
+                audioPlayer.pause();
+                updatePlayButton(false);
+            }
+        });
+
+        // 上一首/下一首
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            const currentIndex = getCurrentIndex();
+            playSong((currentIndex - 1 + playlist.length) % playlist.length);
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            const currentIndex = getCurrentIndex();
+            playSong((currentIndex + 1) % playlist.length);
+        });
+
+        // 进度条控制
+        progressContainer.addEventListener('click', (e) => {
+            const rect = progressContainer.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            audioPlayer.currentTime = pos * audioPlayer.duration;
+        });
+
+        // 音量控制
+        volumeControl.addEventListener('input', (e) => {
+            audioPlayer.volume = e.target.value;
+        });
+
+        // 更新时间显示
+        audioPlayer.addEventListener('timeupdate', () => {
+            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+            currentTimeDisplay.textContent = formatTime(audioPlayer.currentTime);
+        });
+
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            durationDisplay.textContent = formatTime(audioPlayer.duration);
+        });
+
+        // 自动播放下一首
+        audioPlayer.addEventListener('ended', () => {
+            const currentIndex = getCurrentIndex();
+            playSong((currentIndex + 1) % playlist.length);
+        });
+
+        // 工具函数
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            seconds = Math.floor(seconds % 60);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function updatePlayButton(isPlaying) {
+            playIcon.src = isPlaying ? 
+                'https://img.icons8.com/ios/50/pause--v1.png' : 
+                'https://img.icons8.com/ios/50/play--v1.png';
+        }
+
+        function getCurrentIndex() {
+            return Array.from(playlistElement.children).findIndex(
+                item => item.classList.contains('playing')
+            );
+        }
+    </script>
+</body>
+</html>
