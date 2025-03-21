@@ -8,7 +8,11 @@
         :root {
             --primary-color: #2c3e50;
             --secondary-color: #4a90e2;
-            --background-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --background-gradient: linear-gradient(135deg, #e6f0ff 0%, #b3d1ff 100%);
+            --card-background: rgba(255, 255, 255, 0.95);
+            --text-color: #2c3e50;
+            --hover-color: #4a90e2;
+            --playing-color: #4a90e2;
         }
 
         * {
@@ -21,7 +25,7 @@
             font-family: 'Segoe UI', system-ui, sans-serif;
             min-height: 100vh;
             background: var(--background-gradient);
-            color: var(--primary-color);
+            color: var(--text-color);
         }
 
         .container {
@@ -41,11 +45,15 @@
             color: var(--secondary-color);
         }
 
+        .player-header p {
+            color: var(--text-color);
+        }
+
         .player-body {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--card-background);
             border-radius: 20px;
             padding: 2rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -81,7 +89,7 @@
             align-items: center;
             padding: 1rem;
             margin: 0.5rem 0;
-            background: rgba(255, 255, 255, 0.9);
+            background: var(--card-background);
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -90,10 +98,29 @@
         .song-item:hover {
             transform: translateX(10px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: var(--hover-color);
+            color: white;
         }
 
         .song-item.playing {
-            background: var(--secondary-color);
+            background: var(--playing-color);
+            color: white;
+        }
+
+        .song-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .song-artist, .song-duration {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .song-item.playing .song-title,
+        .song-item:hover .song-title {
             color: white;
         }
 
@@ -123,7 +150,7 @@
             display: flex;
             justify-content: space-between;
             font-size: 0.9rem;
-            color: #666;
+            color: var(--text-color);
         }
 
         .control-buttons {
@@ -193,7 +220,7 @@
     <div class="container">
         <div class="player-header">
             <h1>🎶 米洛洛的歌单~</h1>
-            <p>Enjoy your favorite tracks</p>
+            <p>喜欢洛洛的话记得点点关注扔扔灯牌~</p>
         </div>
         
         <div class="player-body">
